@@ -1,4 +1,3 @@
-import java.rmi.Remote;
 import java.util.NoSuchElementException;
 
 public class SortedLinkedList {
@@ -50,36 +49,13 @@ public class SortedLinkedList {
   public void addFirst(Integer item) {
     if (head != null) {
       Node newNode = new Node(item, head, null);
-      head.setPrve(newNode);
       head = newNode;
+      newNode.getNext().setPrve(newNode);
       numNode++;
     } else {
       head = new Node(item, null, null);
       tail = head;
       numNode++;
-    }
-  }
-
-  public void sorted() {
-    Node countNode = head;
-    Node nextNode = head.getNext();
-    Node minNode = head;
-    if (head != null) {
-      for (int i = 0; i < numNode - 1; i++) {
-        for (int j = i + 1; j < numNode; j++) {
-          if (minNode.getElement() > nextNode.getElement()) {
-            minNode = nextNode;
-          }
-          nextNode = nextNode.getNext();
-        }
-        Integer temp = countNode.getElement();
-        countNode.setData(minNode.getElement());
-        minNode.setData(temp);
-        countNode = countNode.getNext();
-        nextNode = countNode.getNext();
-        minNode = countNode;
-
-      }
     }
   }
 
@@ -94,22 +70,33 @@ public class SortedLinkedList {
           addLast(item);
         }
       } else {
-        Node tmp = head;
+        Node tmp = tail;
         while (tmp != null) {
-
           if (tmp.getElement() <= item) {
-            System.out.println(item);
+            Node isTailNext = tmp.getNext();
             Node tmpNew = new Node(item, tmp.getNext(), tmp);
-            // tmp.setNext(tmpNew);
-            // tmp.getNext().setPrve(tmpNew);
+            tmp.setNext(tmpNew);
+            if( isTailNext != null ) {
+              tmp.getNext().setPrve(tmpNew); 
+            } else {
+              tail = tmpNew ; 
+            }
             numNode++;
-          } else {
-            System.out.println(tmp.getNext().getElement());
-          }
-          tmp = tmp.getNext();
+            if( tmp.equals(tail) ) {
+              System.out.print(tmp.getElement());
+            }
+            break ;
+          } else if(tmp.equals(head)){
+            if( tmp.getElement() >= item){
+              addFirst(item); 
+              break;
+            }
+          } 
+          tmp = tmp.getPrev();
         }
       }
     }
+    System.out.println(tail.getElement());
   }
 
   public void removeLast() {
@@ -125,24 +112,14 @@ public class SortedLinkedList {
   }
 
   public Integer remove(Integer item) {
-    Node nodeTemp = head;
     Integer afterRemove = -1;
     if (head != null) {
-      for (int i = 0; i < numNode; i++) {
-        if (nodeTemp.getElement() == item) {
-          if (nodeTemp.getPrev() == null) {
-            removeFirst();
-          } else if (nodeTemp.getNext() == null) {
-            removeLast();
-          } else {
-            Node newNode = nodeTemp.getPrev();
-            newNode.setNext(nodeTemp.getNext());
-            nodeTemp.getNext().setPrve(newNode);
-            numNode--;
-            return afterRemove;
-          }
+      Node nodeTemp = head;
+      while( nodeTemp !=  null ) {
+        if( nodeTemp.getElement() == item ) {
+           
         }
-        nodeTemp = nodeTemp.getNext();
+        nodeTemp = nodeTemp.getNext() ; 
       }
     } else {
       throw new NoSuchElementException("Can't remove element ..");
@@ -151,10 +128,10 @@ public class SortedLinkedList {
   }
 
   public void print() {
-    Node temp = head;
-    for (int i = 0; i < numNode; i++) {
+    Node temp = tail;
+    for (int i = 0; temp.getNext() != null ; i++) {
       System.out.println("item : " + temp.getElement());
-      temp = temp.getNext();
+      temp = temp.getPrev();
     }
   }
 
